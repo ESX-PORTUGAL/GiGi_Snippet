@@ -1,0 +1,302 @@
+--VK_HANDSUP
+handsup = false
+
+function getSurrenderStatus()
+	return handsup
+end
+
+RegisterNetEvent('vk_handsup:getSurrenderStatusPlayer')
+AddEventHandler('vk_handsup:getSurrenderStatusPlayer',function(event,source)
+		if handsup then
+            TriggerServerEvent("vk_handsup:reSendSurrenderStatus",event,source,true)
+		else
+			TriggerServerEvent("vk_handsup:reSendSurrenderStatus",event,source,false)
+		end
+end)
+
+Citizen.CreateThread(function()
+	while true do
+		Citizen.Wait(0)
+		local lPed = GetPlayerPed(-1)
+		RequestAnimDict("random@mugging3")
+		if not IsPedInAnyVehicle(lPed, false) and not IsPedSwimming(lPed) and not IsPedShooting(lPed) and not IsPedClimbing(lPed) and not IsPedCuffed(lPed) and not IsPedDiving(lPed) and not IsPedFalling(lPed) and not IsPedJumping(lPed) and not IsPedJumpingOutOfVehicle(lPed) and IsPedOnFoot(lPed) and not IsPedRunning(lPed) and not IsPedUsingAnyScenario(lPed) and not IsPedInParachuteFreeFall(lPed) then
+			if IsControlPressed(1, 323) then
+				if DoesEntityExist(lPed) then
+					SetCurrentPedWeapon(lPed, 0xA2719263, true)
+					Citizen.CreateThread(function()
+						RequestAnimDict("random@mugging3")
+						while not HasAnimDictLoaded("random@mugging3") do
+							Citizen.Wait(100)
+						end
+
+						if not handsup then
+							handsup = true
+							TaskPlayAnim(lPed, "random@mugging3", "handsup_standing_base", 8.0, -8, -1, 49, 0, 0, 0, 0)
+						end
+					end)
+				end
+			end
+		end
+		if IsControlReleased(1, 323) then
+			if DoesEntityExist(lPed) then
+				Citizen.CreateThread(function()
+					RequestAnimDict("random@mugging3")
+					while not HasAnimDictLoaded("random@mugging3") do
+						Citizen.Wait(100)
+					end
+
+					if handsup then
+						handsup = false
+						ClearPedSecondaryTask(lPed)
+					end
+				end)
+			end
+		end
+	end
+end)
+
+--Pointing
+local mp_pointing = false
+local keyPressed = false
+
+local function startPointing()
+    local ped = GetPlayerPed(-1)
+    RequestAnimDict("anim@mp_point")
+    while not HasAnimDictLoaded("anim@mp_point") do
+        Wait(0)
+    end
+    SetPedCurrentWeaponVisible(ped, 0, 1, 1, 1)
+    SetPedConfigFlag(ped, 36, 1)
+    Citizen.InvokeNative(0x2D537BA194896636, ped, "task_mp_pointing", 0.5, 0, "anim@mp_point", 24)
+    RemoveAnimDict("anim@mp_point")
+end
+
+local function stopPointing()
+    local ped = GetPlayerPed(-1)
+    Citizen.InvokeNative(0xD01015C7316AE176, ped, "Stop")
+    if not IsPedInjured(ped) then
+        ClearPedSecondaryTask(ped)
+    end
+    if not IsPedInAnyVehicle(ped, 1) then
+        SetPedCurrentWeaponVisible(ped, 1, 1, 1, 1)
+    end
+    SetPedConfigFlag(ped, 36, 0)
+    ClearPedSecondaryTask(PlayerPedId())
+end
+
+local once = true
+local oldval = false
+local oldvalped = false
+
+Citizen.CreateThread(function()
+    while true do
+        Wait(0)
+
+        if once then
+            once = false
+        end
+
+        if not keyPressed then
+            if IsControlPressed(0, 29) and not mp_pointing and IsPedOnFoot(PlayerPedId()) then
+                Wait(200)
+                if not IsControlPressed(0, 29) then
+                    keyPressed = true
+                    startPointing()
+                    mp_pointing = true
+                else
+                    keyPressed = true
+                    while IsControlPressed(0, 29) do
+                        Wait(50)
+                    end
+                end
+            elseif (IsControlPressed(0, 29) and mp_pointing) or (not IsPedOnFoot(PlayerPedId()) and mp_pointing) then
+                keyPressed = true
+                mp_pointing = false
+                stopPointing()
+            end
+        end
+
+        if keyPressed then
+            if not IsControlPressed(0, 29) then
+                keyPressed = false
+            end
+        end
+        if Citizen.InvokeNative(0x921CE12C489C4C41, PlayerPedId()) and not mp_pointing then
+            stopPointing()
+        end
+        if Citizen.InvokeNative(0x921CE12C489C4C41, PlayerPedId()) then
+            if not IsPedOnFoot(PlayerPedId()) then
+                stopPointing()
+            else
+                local ped = GetPlayerPed(-1)
+                local camPitch = GetGameplayCamRelativePitch()
+                if camPitch < -70.0 then
+                    camPitch = -70.0
+                elseif camPitch > 42.0 then
+                    camPitch = 42.0
+                end
+                camPitch = (camPitch + 70.0) / 112.0
+
+                local camHeading = GetGameplayCamRelativeHeading()
+                local cosCamHeading = Cos(camHeading)
+                local sinCamHeading = Sin(camHeading)
+                if camHeading < -180.0 then
+                    camHeading = -180.0
+                elseif camHeading > 180.0 then
+                    camHeading = 180.0
+                end
+                camHeading = (camHeading + 180.0) / 360.0
+
+                local blocked = 0
+                local nn = 0
+
+                local coords = GetOffsetFromEntityInWorldCoords(ped, (cosCamHeading * -0.2) - (sinCamHeading * (0.4 * camHeading + 0.3)), (sinCamHeading * -0.2) + (cosCamHeading * (0.4 * camHeading + 0.3)), 0.6)
+                local ray = Cast_3dRayPointToPoint(coords.x, coords.y, coords.z - 0.2, coords.x, coords.y, coords.z + 0.2, 0.4, 95, ped, 7);
+                nn,blocked,coords,coords = GetRaycastResult(ray)
+
+                Citizen.InvokeNative(0xD5BB4025AE449A4E, ped, "Pitch", camPitch)
+                Citizen.InvokeNative(0xD5BB4025AE449A4E, ped, "Heading", camHeading * -1.0 + 1.0)
+                Citizen.InvokeNative(0xB0A6CFD2C69C1088, ped, "isBlocked", blocked)
+                Citizen.InvokeNative(0xB0A6CFD2C69C1088, ped, "isFirstPerson", Citizen.InvokeNative(0xEE778F8C7E1142E2, Citizen.InvokeNative(0x19CAFA3C87F7C2FF)) == 4)
+
+            end
+        end
+    end
+end)
+
+--Crouch
+local crouched = false
+
+Citizen.CreateThread( function()
+    while true do 
+        Citizen.Wait(1)
+
+        local ped = GetPlayerPed(-1)
+
+        if (DoesEntityExist(ped) and not IsEntityDead(ped)) then
+            DisableControlAction( 0, 36, true ) -- INPUT_DUCK
+
+            if (not IsPauseMenuActive()) then 
+                if (IsDisabledControlJustPressed(0, 36)) then
+                    RequestAnimSet("move_ped_crouched")
+
+                    while (not HasAnimSetLoaded("move_ped_crouched")) do
+                        Citizen.Wait(100)
+                    end
+
+                    if (crouched == true) then 
+                        ResetPedMovementClipset(ped, 0)
+                        crouched = false 
+                    elseif (crouched == false) then
+                        SetPedMovementClipset(ped, "move_ped_crouched", 0.25)
+                        crouched = true
+                    end
+                end
+            end
+        end
+    end
+end)
+
+--Esconder Mapa
+Citizen.CreateThread(function()
+    while true do
+	Citizen.Wait(0)
+
+		local playerPed = GetPlayerPed(-1)
+		local playerVeh = GetVehiclePedIsIn(playerPed, false)
+
+		if DoesEntityExist(playerVeh) then
+			DisplayRadar(true)
+		else
+			DisplayRadar(false)
+		end
+    end
+end)
+
+--Npc Populacao + Retirar Npc da Policia
+Citizen.CreateThread(function()
+	while true do
+		Citizen.Wait(0) 
+        SetVehicleDensityMultiplierThisFrame(0.2) --Seleciona densidade do trafico
+		SetPedDensityMultiplierThisFrame(0.1) --seleciona a densidade de Npc
+		SetRandomVehicleDensityMultiplierThisFrame(0.3) --seleciona a densidade de viaturas estacionadas a andar etc
+		SetParkedVehicleDensityMultiplierThisFrame(0.3) --seleciona a densidade de viaturas estacionadas
+		SetScenarioPedDensityMultiplierThisFrame(1.0, 1.0) --seleciona a densidade de Npc a andar pela cidade
+		SetGarbageTrucks(false) --Desactiva os Camioes do Lixo de dar Spawn Aleatoriamente
+		SetRandomBoats(false) --Desactiva os Barcos de dar Spawn na agua
+        SetCreateRandomCops(false) --Desactiva a Policia a andar pela cidade
+		SetCreateRandomCopsNotOnScenarios(false) --Para o Spanw Aleatorio de Policias Fora do Cenario
+		SetCreateRandomCopsOnScenarios(false) --Para o Spanw Aleatorio de Policias no Cenario
+        DisablePlayerVehicleRewards(PlayerId()) --Nao mexer --> Impossibilita que os players possam ganhar armas nas viaturas da policia e ems
+        local x,y,z = table.unpack(GetEntityCoords(PlayerPedId()))
+		ClearAreaOfVehicles(x, y, z, 1000, false, false, false, false, false)
+		RemoveVehiclesFromGeneratorsInArea(x - 500.0, y - 500.0, z - 500.0, x + 500.0, y + 500.0, z + 500.0);
+	 end
+end)
+
+--Tirar Armas Aos Npc Npc
+local pedindex = {}
+
+function SetWeaponDrops()
+    local handle, ped = FindFirstPed()
+    local finished = false
+    repeat
+        if not IsEntityDead(ped) then
+                pedindex[ped] = {}
+        end
+        finished, ped = FindNextPed(handle)
+        until not finished
+        EndFindPed(handle)
+        for peds,_ in pairs(pedindex) do
+        if peds ~= nil then
+            SetPedDropsWeaponsWhenDead(peds, false)
+        end
+    end
+end
+
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(0)
+        SetWeaponDrops()
+     end
+end)
+
+function ShowNotification(text)
+	SetNotificationTextEntry("STRING")
+	AddTextComponentString(text)
+	DrawNotification(false, false)
+ end
+
+ --Disable Dispatch
+Citizen.CreateThread(function()
+	for i = 1, 15 do
+		EnableDispatchService(i, false)
+	 end
+end)
+
+
+--No Aim + Snipper Aim
+Citizen.CreateThread(function()
+    local isSniper = true
+    while true do
+        Citizen.Wait(11)
+        local ped = GetPlayerPed(-1)
+		local currentWeaponHash = GetSelectedPedWeapon(ped)
+
+        if currentWeaponHash == 100416529 then
+            isSniper = true
+        elseif currentWeaponHash == 205991906 then
+            isSniper = true
+        elseif currentWeaponHash == -952879014 then
+            isSniper = true
+        elseif currentWeaponHash == GetHashKey('WEAPON_SNIPERRIFLE') then
+            isSniper = true
+        else
+            isSniper = false
+         end
+
+        if not isSniper then
+            HideHudComponentThisFrame(14)
+         end
+     end
+end)
