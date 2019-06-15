@@ -158,7 +158,6 @@ Citizen.CreateThread(function()
                 Citizen.InvokeNative(0xD5BB4025AE449A4E, ped, "Heading", camHeading * -1.0 + 1.0)
                 Citizen.InvokeNative(0xB0A6CFD2C69C1088, ped, "isBlocked", blocked)
                 Citizen.InvokeNative(0xB0A6CFD2C69C1088, ped, "isFirstPerson", Citizen.InvokeNative(0xEE778F8C7E1142E2, Citizen.InvokeNative(0x19CAFA3C87F7C2FF)) == 4)
-
             end
         end
     end
@@ -197,83 +196,26 @@ Citizen.CreateThread( function()
     end
 end)
 
---Esconder Mapa
-Citizen.CreateThread(function()
-    while true do
-	Citizen.Wait(0)
-
-		local playerPed = GetPlayerPed(-1)
-		local playerVeh = GetVehiclePedIsIn(playerPed, false)
-
-		if DoesEntityExist(playerVeh) then
-			DisplayRadar(true)
-		else
-			DisplayRadar(false)
-		end
-    end
-end)
-
 --Npc Populacao + Retirar Npc da Policia
 Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(0) 
-        SetVehicleDensityMultiplierThisFrame(0.2) --Seleciona densidade do trafico
+                SetVehicleDensityMultiplierThisFrame(0.2) --Seleciona densidade do trafico
 		SetPedDensityMultiplierThisFrame(0.1) --seleciona a densidade de Npc
 		SetRandomVehicleDensityMultiplierThisFrame(0.3) --seleciona a densidade de viaturas estacionadas a andar etc
 		SetParkedVehicleDensityMultiplierThisFrame(0.3) --seleciona a densidade de viaturas estacionadas
 		SetScenarioPedDensityMultiplierThisFrame(1.0, 1.0) --seleciona a densidade de Npc a andar pela cidade
 		SetGarbageTrucks(false) --Desactiva os Camioes do Lixo de dar Spawn Aleatoriamente
 		SetRandomBoats(false) --Desactiva os Barcos de dar Spawn na agua
-        SetCreateRandomCops(false) --Desactiva a Policia a andar pela cidade
+                SetCreateRandomCops(false) --Desactiva a Policia a andar pela cidade
 		SetCreateRandomCopsNotOnScenarios(false) --Para o Spanw Aleatorio de Policias Fora do Cenario
 		SetCreateRandomCopsOnScenarios(false) --Para o Spanw Aleatorio de Policias no Cenario
-        DisablePlayerVehicleRewards(PlayerId()) --Nao mexer --> Impossibilita que os players possam ganhar armas nas viaturas da policia e ems
-        local x,y,z = table.unpack(GetEntityCoords(PlayerPedId()))
+                DisablePlayerVehicleRewards(PlayerId()) --Nao mexer --> Impossibilita que os players possam ganhar armas nas viaturas da policia e ems
+                local x,y,z = table.unpack(GetEntityCoords(PlayerPedId()))
 		ClearAreaOfVehicles(x, y, z, 1000, false, false, false, false, false)
 		RemoveVehiclesFromGeneratorsInArea(x - 500.0, y - 500.0, z - 500.0, x + 500.0, y + 500.0, z + 500.0);
-	 end
-end)
-
---Tirar Armas Aos Npc Npc
-local pedindex = {}
-
-function SetWeaponDrops()
-    local handle, ped = FindFirstPed()
-    local finished = false
-    repeat
-        if not IsEntityDead(ped) then
-                pedindex[ped] = {}
-        end
-        finished, ped = FindNextPed(handle)
-        until not finished
-        EndFindPed(handle)
-        for peds,_ in pairs(pedindex) do
-        if peds ~= nil then
-            SetPedDropsWeaponsWhenDead(peds, false)
-        end
-    end
-end
-
-Citizen.CreateThread(function()
-    while true do
-        Citizen.Wait(0)
-        SetWeaponDrops()
-     end
-end)
-
-function ShowNotification(text)
-	SetNotificationTextEntry("STRING")
-	AddTextComponentString(text)
-	DrawNotification(false, false)
- end
-
- --Disable Dispatch
-Citizen.CreateThread(function()
-	for i = 1, 15 do
-		EnableDispatchService(i, false)
-	 end
-end)
-
+	    end
+        end)
 
 --No Aim + Snipper Aim
 Citizen.CreateThread(function()
@@ -300,3 +242,20 @@ Citizen.CreateThread(function()
          end
      end
 end)
+
+--Disable Dispatch
+Citizen.CreateThread(function()
+	for i = 1, 15 do
+	    EnableDispatchService(i, false)
+	end
+    end)  
+
+--NODROPNPC
+Citizen.CreateThread(function()
+    while true do
+      Citizen.Wait(1)
+      RemoveAllPickupsOfType(0xDF711959) -- Carbine rifle
+      RemoveAllPickupsOfType(0xF9AFB48F) -- Pistol
+      RemoveAllPickupsOfType(0xA9355DCD) -- Pumpshotgun
+    end
+  end)
