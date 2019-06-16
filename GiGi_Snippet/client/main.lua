@@ -1,58 +1,35 @@
---VK_HANDSUP
-handsup = false
-
-function getSurrenderStatus()
-	return handsup
-end
-
-RegisterNetEvent('vk_handsup:getSurrenderStatusPlayer')
-AddEventHandler('vk_handsup:getSurrenderStatusPlayer',function(event,source)
-		if handsup then
-            TriggerServerEvent("vk_handsup:reSendSurrenderStatus",event,source,true)
-		else
-			TriggerServerEvent("vk_handsup:reSendSurrenderStatus",event,source,false)
-		end
-end)
+local Keys = {
+    ["ESC"] = 322, ["F1"] = 288, ["F2"] = 289, ["F3"] = 170, ["F5"] = 166, ["F6"] = 167, ["F7"] = 168, ["F8"] = 169, ["F9"] = 56, ["F10"] = 57, 
+    ["~"] = 243, ["1"] = 157, ["2"] = 158, ["3"] = 160, ["4"] = 164, ["5"] = 165, ["6"] = 159, ["7"] = 161, ["8"] = 162, ["9"] = 163, ["-"] = 84, ["="] = 83, ["BACKSPACE"] = 177, 
+    ["TAB"] = 37, ["Q"] = 44, ["W"] = 32, ["E"] = 38, ["R"] = 45, ["T"] = 245, ["Y"] = 246, ["U"] = 303, ["P"] = 199, ["["] = 39, ["]"] = 40, ["ENTER"] = 18,
+    ["CAPS"] = 137, ["A"] = 34, ["S"] = 8, ["D"] = 9, ["F"] = 23, ["G"] = 47, ["H"] = 74, ["K"] = 311, ["L"] = 182,
+    ["LEFTSHIFT"] = 21, ["Z"] = 20, ["X"] = 73, ["C"] = 26, ["V"] = 0, ["B"] = 29, ["N"] = 249, ["M"] = 244, [","] = 82, ["."] = 81,
+    ["LEFTCTRL"] = 36, ["LEFTALT"] = 19, ["SPACE"] = 22, ["RIGHTCTRL"] = 70, 
+    ["HOME"] = 213, ["PAGEUP"] = 10, ["PAGEDOWN"] = 11, ["DELETE"] = 178,
+    ["LEFT"] = 174, ["RIGHT"] = 175, ["TOP"] = 27, ["DOWN"] = 173,
+    ["NENTER"] = 201, ["N4"] = 108, ["N5"] = 60, ["N6"] = 107, ["N+"] = 96, ["N-"] = 97, ["N7"] = 117, ["N8"] = 61, ["N9"] = 118
+}
 
 Citizen.CreateThread(function()
-	while true do
-		Citizen.Wait(0)
-		local lPed = GetPlayerPed(-1)
-		RequestAnimDict("random@mugging3")
-		if not IsPedInAnyVehicle(lPed, false) and not IsPedSwimming(lPed) and not IsPedShooting(lPed) and not IsPedClimbing(lPed) and not IsPedCuffed(lPed) and not IsPedDiving(lPed) and not IsPedFalling(lPed) and not IsPedJumping(lPed) and not IsPedJumpingOutOfVehicle(lPed) and IsPedOnFoot(lPed) and not IsPedRunning(lPed) and not IsPedUsingAnyScenario(lPed) and not IsPedInParachuteFreeFall(lPed) then
-			if IsControlPressed(1, 323) then
-				if DoesEntityExist(lPed) then
-					SetCurrentPedWeapon(lPed, 0xA2719263, true)
-					Citizen.CreateThread(function()
-						RequestAnimDict("random@mugging3")
-						while not HasAnimDictLoaded("random@mugging3") do
-							Citizen.Wait(100)
-						end
+    local dict = "missminuteman_1ig_2"
 
-						if not handsup then
-							handsup = true
-							TaskPlayAnim(lPed, "random@mugging3", "handsup_standing_base", 8.0, -8, -1, 49, 0, 0, 0, 0)
-						end
-					end)
-				end
-			end
-		end
-		if IsControlReleased(1, 323) then
-			if DoesEntityExist(lPed) then
-				Citizen.CreateThread(function()
-					RequestAnimDict("random@mugging3")
-					while not HasAnimDictLoaded("random@mugging3") do
-						Citizen.Wait(100)
-					end
-
-					if handsup then
-						handsup = false
-						ClearPedSecondaryTask(lPed)
-					end
-				end)
-			end
-		end
-	end
+    RequestAnimDict(dict)
+    while not HasAnimDictLoaded(dict) do
+        Citizen.Wait(100)
+    end
+    local handsup = false
+    while true do
+        Citizen.Wait(1)
+        if IsControlJustPressed(1, Keys['X']) and GetLastInputMethod(2) and IsPedOnFoot(PlayerPedId()) then --Start holding X
+            if not handsup then
+                TaskPlayAnim(GetPlayerPed(-1), dict, "handsup_enter", 8.0, 8.0, -1, 50, 0, false, false, false)
+                handsup = true
+            else
+                handsup = false
+                ClearPedTasks(GetPlayerPed(-1))
+            end
+        end
+    end
 end)
 
 --Pointing
