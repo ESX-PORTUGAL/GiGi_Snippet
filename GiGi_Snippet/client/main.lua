@@ -15,7 +15,7 @@ Citizen.CreateThread(function()
 
     RequestAnimDict(dict)
     while not HasAnimDictLoaded(dict) do
-        Citizen.Wait(100)
+        Citizen.Wait(0)
     end
     local handsup = false
     while true do
@@ -75,7 +75,7 @@ Citizen.CreateThread(function()
 
         if not keyPressed then
             if IsControlPressed(0, 29) and not mp_pointing and IsPedOnFoot(PlayerPedId()) then
-                Wait(200)
+                Wait(0)
                 if not IsControlPressed(0, 29) then
                     keyPressed = true
                     startPointing()
@@ -83,7 +83,7 @@ Citizen.CreateThread(function()
                 else
                     keyPressed = true
                     while IsControlPressed(0, 29) do
-                        Wait(50)
+                        Wait(0)
                     end
                 end
             elseif (IsControlPressed(0, 29) and mp_pointing) or (not IsPedOnFoot(PlayerPedId()) and mp_pointing) then
@@ -145,7 +145,7 @@ local crouched = false
 
 Citizen.CreateThread( function()
     while true do 
-        Citizen.Wait(1)
+        Citizen.Wait(0)
 
         local ped = GetPlayerPed(-1)
 
@@ -157,7 +157,7 @@ Citizen.CreateThread( function()
                     RequestAnimSet("move_ped_crouched")
 
                     while (not HasAnimSetLoaded("move_ped_crouched")) do
-                        Citizen.Wait(100)
+                        Citizen.Wait(0)
                     end
 
                     if (crouched == true) then 
@@ -198,7 +198,7 @@ Citizen.CreateThread(function()
 Citizen.CreateThread(function()
     local isSniper = true
     while true do
-        Citizen.Wait(11)
+        Citizen.Wait(0)
         local ped = GetPlayerPed(-1)
 		local currentWeaponHash = GetSelectedPedWeapon(ped)
 
@@ -230,7 +230,7 @@ Citizen.CreateThread(function()
 --NODROPNPC
 Citizen.CreateThread(function()
     while true do
-      Citizen.Wait(1)
+      Citizen.Wait(0)
       RemoveAllPickupsOfType(0xDF711959) -- Carbine rifle
       RemoveAllPickupsOfType(0xF9AFB48F) -- Pistol
       RemoveAllPickupsOfType(0xA9355DCD) -- Pumpshotgun
