@@ -1,32 +1,66 @@
 ### DOM GIGI SNIPPET ###
 
-O GiGi_Snippet foi alterado do Original
+Seleciona a densidade de Npc
+		         
+Seleciona a densidade de viaturas estacionadas a andar etc
+		
+Seleciona a densidade de viaturas estacionadas
+		
+Seleciona a densidade de Npc a andar pela cidade
+		
+Desactiva os Camioes do Lixo de dar Spawn Aleatoriamente
+		
+Desactiva os Barcos de dar Spawn na agua
+                
+Desactiva a Policia a andar pela cidade
+		
+Para o Spanw Aleatorio de Policias Fora do Cenario
+		
+Para o Spanw Aleatorio de Policias no Cenario
+                
+Impossibilita que os players possam ganhar armas nas viaturas da policia e ems
+                
+Desactiva o drop de armas de Npc.
+                
+--> Carbine rifle
+                
+--> Pistol
+                
+-- >Pumpshotgun
+                
+Remove Mira
+                
+Disabel Dispatch
 
-Alteracoes Feitas
 
-GiGi_Snippet has changed from the Original
+Select Npc Density
 
-Changes Made
+Selects the density of parked vehicles to walk etc.
 
-### Features ###
+Selects the density of parked vehicles
 
--> HandsUp
--> Point 
--> Crouch  
--> Retira Mira Fica so a da snipper
--> Npc Populacao + Retirar Npc da Policia 
--> Impossibilta ganhar armas em viaturas da policia e ems
--> Tira Armas Aos Npc (nao dropam armas)
--> Disable Dispatch (desactiva ambulancias de npc e viaturas da policia)
+Select the density of Npc to walk around the city.
 
--> HandsUp
--> Point
--> Crouch
--> Remove Aim leves just the snipper aim
--> Npc Population + Withdraw NPC from the Police
--> Impossible to gain weapons in police cars and ems
--> Take Weapons To NPC (do not drop weapons)
--> Disable Dispatch (deactivates npc ambulances and police vehicles)
+Disables Randomly Spawning Trash Trucks
 
+Disables Spawn Boats on Water
+                
+Disables Police Walking City
 
+For the Random Spanw of Off-the-Scenic Cops
 
+For Random Scenic Police Spanw
+                
+Impossible for players to win weapons in police cars and ems
+                
+Disables Npc weapons drop.
+                
+-> Carbine rifle
+                
+-> Pistol
+                
+-> Pumpshotgun
+                
+Remove crosshairs
+                
+Disabel Dispatch
