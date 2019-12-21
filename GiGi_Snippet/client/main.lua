@@ -20,7 +20,9 @@ Citizen.CreateThread(function()
 	ClearAreaOfVehicles(x, y, z, 1000, false, false, false, false, false)
 	RemoveVehiclesFromGeneratorsInArea(x - 500.0, y - 500.0, z - 500.0, x + 500.0, y + 500.0, z + 500.0);
         HideHudComponentThisFrame(14)-- Remover Mira
-        for i = 1, 15 do
+        RemoveMultiplayerHudCash(0x968F270E39141ECA) -- Remove o Dinheiro Original do Gta
+        RemoveMultiplayerBankCash(0xC7C6789AA1CFEDD0) --Remove o Dinheiro Original do Gta Que esta no Banco
+	for i = 1, 15 do
         EnableDispatchService(i, false)-- Disabel Dispatch
       end
    end
