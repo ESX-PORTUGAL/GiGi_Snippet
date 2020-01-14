@@ -1,4 +1,3 @@
---Npc Populacao + Retirar Npc da Policia etc.
 Citizen.CreateThread(function()
     while true do
 	Citizen.Wait(0)
